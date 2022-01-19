@@ -1,4 +1,5 @@
 from __future__ import print_function, unicode_literals, absolute_import
+from ast import arg
 
 import os
 import re
@@ -53,11 +54,14 @@ def mimic_path_relativity(path, other, default_dir):
     return path
 
 
-def derive_compile_command(header_file, reference):
+def derive_compile_command(header_file, reference, cxx=False):
     header_file_relative = mimic_path_relativity(header_file, reference.file,
                                                  reference.directory)
     args = sanitize_compile_options(reference)
     args.extend(["-c", header_file_relative])
+    if cxx:
+        args.append('/TP')
+
     return CompileCommand(
         directory=reference.directory,
         file=header_file_relative,
