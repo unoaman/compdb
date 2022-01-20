@@ -105,7 +105,7 @@ def extract_include_dirs(compile_command):
                     include_dir = arguments[i][len(opt):]
                 if opt == "-B":
                     include_dir = os.path.join(include_dir, "include")
-                header_search_path.append(include_dir)
+                header_search_path.append(include_dir.replace('"', ''))
         i += 1
     return [
         os.path.join(compile_command.directory, p) for p in header_search_path
