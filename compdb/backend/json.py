@@ -49,6 +49,7 @@ class JSONCompilationDatabase(CompilationDatabaseInterface):
                                     # XXX: os.name is "posix" on mysys2/cygwin,
                                     # is that correct?
                                     posix=os.name == "posix")
+            arguments = list(map(lambda x: x.replace('"', ''), arguments))
         return CompileCommand(d['directory'], d['file'], arguments,
                               d.get('output'))
 
