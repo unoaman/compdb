@@ -102,6 +102,12 @@ def extract_include_dirs(compile_command):
                 if opt == "-B":
                     include_dir = os.path.join(include_dir, "include")
                 header_search_path.append(include_dir)
+        if arguments[i].startswith("@CMakeFiles") and arguments[i].endswith(".rsp"):
+            with open(os.path.join(compile_command.directory, arguments[i][1:]), 'r') as fp:
+                includes = fp.readlines()[0].strip().split()
+                for include in includes:
+                    header_search_path.append(include[2:])
+
         i += 1
     return [
         os.path.join(compile_command.directory, p) for p in header_search_path
