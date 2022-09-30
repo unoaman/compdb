@@ -106,7 +106,9 @@ def extract_include_dirs(compile_command):
             with open(os.path.join(compile_command.directory, arguments[i][1:]), 'r') as fp:
                 includes = fp.readlines()[0].strip().split()
                 for include in includes:
-                    header_search_path.append(include[2:])
+                    include = include[2:]
+                    include = include.strip('\"')
+                    header_search_path.append(include)
 
         i += 1
     return [
