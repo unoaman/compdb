@@ -88,6 +88,12 @@ class ListCommand(Command):
             metavar='file',
             nargs='*',
             help='restrict results to a list of files')
+        parser.add_argument(
+            "-x",
+            "--cxx",
+            action='store_true',
+            help='Force treat all .h file as .hpp file'
+        )
         args = parser.parse_args(argv)
         if args.output:
             output_writer = io.open(args.output, 'w', encoding='utf8')
@@ -96,7 +102,7 @@ class ListCommand(Command):
         has_missing_files = False
         database = self._make_database(config)
         builder = compdb.includedb.IncludeIndexBuilder()
-        included_by_database = builder.build(database)
+        included_by_database = builder.build(database, cxx=args.cxx)
         with JSONCompileCommandSerializer(output_writer) as serializer:
             for file, compile_commands in self._gen_results(
                     database, included_by_database, args):
