@@ -49,8 +49,12 @@ class JSONCompilationDatabase(CompilationDatabaseInterface):
                                     # XXX: os.name is "posix" on mysys2/cygwin,
                                     # is that correct?
                                     posix=os.name == "posix")
-        return CompileCommand(d['directory'], d['file'], arguments,
-                              d.get('output'))
+            arguments = list(map(lambda x: x.replace(r'\\', '\\').replace(r'\"', '"'), arguments))
+            output = d.get('output')
+            if output:
+                output = output.replace(r'\\', '\\')
+        return CompileCommand(d['directory'].replace(r'\\', '\\'), d['file'].replace(r'\\', '\\'), arguments,
+                              output)
 
     @property
     def _data(self):
@@ -65,20 +69,12 @@ def arguments_to_json(arguments):
     for i, argument in enumerate(arguments):
         if i != 0:
             cmd_line += ' '
-        has_space = re.search(r"\s", argument) is not None
-        # reader now accepts simple quotes, so we need to support them here too
-        has_simple_quote = "'" in argument
-        need_quoting = has_space or has_simple_quote
-        if need_quoting:
-            cmd_line += r'\"'
-        cmd_line += argument.replace("\\", r'\\\\').replace(r'"', r'\\\"')
-        if need_quoting:
-            cmd_line += r'\"'
+        cmd_line += argument.replace("\\", r"\\").replace('"', r'\"')
     return cmd_line + '"'
 
 
 def str_to_json(s):
-    return '"{}"'.format(s.replace("\\", "\\\\").replace('"', r'\"'))
+    return '"{}"'.format(s.replace("\\", r"\\").replace('"', r'\"'))
 
 
 def compile_command_to_json(compile_command):

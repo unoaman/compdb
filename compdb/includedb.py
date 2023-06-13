@@ -138,9 +138,10 @@ A graph represented implemented as an adjacent list.
 See also https://www.python.org/doc/essays/graphs/
 """
 
-    def __init__(self, graph, database):
+    def __init__(self, graph, database, cxx=False):
         self.graph = graph
         self.database = database
+        self.cxx = cxx
         self.__db_index = None
 
     def __repr__(self):
@@ -207,7 +208,7 @@ See also https://www.python.org/doc/essays/graphs/
         if best:
             for compile_command in self.database.get_compile_commands(best):
                 yield compdb.complementer.headerdb.derive_compile_command(
-                    path, compile_command)
+                    path, compile_command, self.cxx)
                 # stop after one compile command
                 break
 
@@ -260,7 +261,7 @@ class IncludedByGraphFiller(object):
 
 class IncludeIndexBuilder(object):
     # return included-by relationship of headers
-    def build(self, database):
+    def build(self, database, cxx=False):
         # Represent included-by relationship of headers
         #
         # The graph is a dict representing an adjacency list
@@ -270,4 +271,4 @@ class IncludeIndexBuilder(object):
         pp.register_include_callback(filler.include_callback)
         for compile_command in database.get_all_compile_commands():
             pp.preprocess(compile_command)
-        return IncludedByDatabase(included_by_graph, database)
+        return IncludedByDatabase(included_by_graph, database, cxx)
