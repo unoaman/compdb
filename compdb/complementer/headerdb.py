@@ -1,4 +1,5 @@
 from __future__ import print_function, unicode_literals, absolute_import
+from ast import arg
 
 import os
 import re
@@ -53,11 +54,14 @@ def mimic_path_relativity(path, other, default_dir):
     return path
 
 
-def derive_compile_command(header_file, reference):
+def derive_compile_command(header_file, reference, cxx=False):
     header_file_relative = mimic_path_relativity(header_file, reference.file,
                                                  reference.directory)
     args = sanitize_compile_options(reference)
     args.extend(["-c", header_file_relative])
+    if cxx:
+        args.append('/TP')
+
     return CompileCommand(
         directory=reference.directory,
         file=header_file_relative,
@@ -101,7 +105,15 @@ def extract_include_dirs(compile_command):
                     include_dir = arguments[i][len(opt):]
                 if opt == "-B":
                     include_dir = os.path.join(include_dir, "include")
-                header_search_path.append(include_dir)
+                header_search_path.append(include_dir.replace('"', ''))
+        if arguments[i].startswith("@CMakeFiles") and arguments[i].endswith(".rsp"):
+            with open(os.path.join(compile_command.directory, arguments[i][1:]), 'r') as fp:
+                includes = fp.readlines()[0].strip().split()
+                for include in includes:
+                    include = include[2:]
+                    include = include.strip('\"')
+                    header_search_path.append(include)
+                header_search_path.append(include_dir.replace('"', ''))
         i += 1
     return [
         os.path.join(compile_command.directory, p) for p in header_search_path
