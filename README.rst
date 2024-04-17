@@ -50,7 +50,7 @@ Install with pip_::
 
 From Github, as user::
 
-  pip install --user git+https://github.com/Sarcasm/compdb.git#egg=compdb
+  pip install --user git+https://github.com/unoaman/compdb.git#egg=compdb
 
 
 Generate a compilation database with header files
